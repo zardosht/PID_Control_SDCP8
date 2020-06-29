@@ -45,6 +45,10 @@ class PID {
   double Kp;
   double Ki;
   double Kd;
+
+  double prev_cte = 0.0;
+  double sum_cte = 0.0;
+  
 };
 
 #endif  // PID_H
