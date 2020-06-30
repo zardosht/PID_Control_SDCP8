@@ -46,7 +46,10 @@ int main() {
 
 
   PID pid_speed;
-  pid_speed.Init(0.07, 0, 0);
+  // pid_speed.Init(1.0, 0, 0);
+  //pid_speed.Init(10.0, 0, 0);
+  pid_speed.Init(5.0, 0, 3.0);
+
 
   PID pid_throttle;
   pid_throttle.Init(0.07, 0, 0);
@@ -107,17 +110,20 @@ int main() {
             steer_value = -1.0;
           }
 
-          double target_speed = speed;
-          double throttle = 0.8;
-          if (speed > 20) {
-            throttle = 0;
-          } 
+          double target_speed = 25;
+          pid_speed.UpdateError(abs(cte));
+          target_speed = target_speed + pid_speed.TotalError();
+          
+          double speed_error = target_speed - speed;
+          pid_throttle.UpdateError(speed_error);
+          double target_throttle = 0.5;
+          double throttle = target_throttle;
+          throttle = throttle - pid_throttle.TotalError();
 
-          // pid_speed.UpdateError(cte);
-          // double throttle = 0.2; 
+          // double throttle = 0.8;
           // if (speed > 20) {
-          //   throttle += throttle * pid_speed.TotalError();
-          // }
+          //   throttle = 0;
+          // } 
 
           // pid_throttle.UpdateError(cte);
           // double throttle = 0.2; 
