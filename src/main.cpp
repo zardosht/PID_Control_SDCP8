@@ -71,13 +71,13 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value;
       
           cout << "\n----------------------- Input " << endl;
           cout << "cte = " << cte << endl;
           cout << "speed = " << speed << endl;
           cout << "steering_angle = " << angle << endl;
 
+          double steer_value = 0.0;
           pid_steer.UpdateError(cte);
           steer_value = pid_steer.TotalError();
           
@@ -88,15 +88,14 @@ int main() {
             steer_value = -1.0;
           }
 
-          double target_speed = 25;
+          double target_speed = 25.0;
           pid_speed.UpdateError(abs(cte));
           target_speed = target_speed + pid_speed.TotalError();
           
           double speed_error = target_speed - speed;
           pid_throttle.UpdateError(speed_error);
           double target_throttle = 0.5;
-          double throttle = target_throttle;
-          throttle = throttle - pid_throttle.TotalError();
+          double throttle = target_throttle - pid_throttle.TotalError();
 
           // DEBUG
           cout << "----------------------- Output" << endl;
