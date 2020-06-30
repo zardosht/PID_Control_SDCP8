@@ -42,7 +42,8 @@ int main() {
   // pid_steer.Init(0.1, 0, 3.0);
   // pid_steer.Init(0.1, 0, 2.0);
   // pid_steer.Init(0.1, 0.001, 2.0);
-  pid_steer.Init(0.15, 0.001, 1.5);
+  // pid_steer.Init(0.15, 0.001, 1.5);
+  pid_steer.Init(0.2, 0.001, 1.5);
 
 
   PID pid_speed;
