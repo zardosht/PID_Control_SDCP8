@@ -8,6 +8,9 @@
 // for convenience
 using nlohmann::json;
 using std::string;
+using std::cout;
+using std::endl;
+
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
@@ -34,12 +37,21 @@ int main() {
   uWS::Hub h;
 
   PID pid_steer;
-  pid_steer.Init(0.07, 15.0, 0.004);
+  // pid_steer.Init(0.07, 0, 0);
+  // pid_steer.Init(0.1, 0, 0);
+  // pid_steer.Init(0.1, 0, 3.0);
+  // pid_steer.Init(0.1, 0, 2.0);
+  // pid_steer.Init(0.1, 0.001, 2.0);
+  pid_steer.Init(0.15, 0.001, 1.5);
+
 
   PID pid_speed;
-  pid_speed.Init(0.07, 15.0, 0.004);
+  pid_speed.Init(0.07, 0, 0);
 
-  h.onMessage([&pid_steer, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
+  PID pid_throttle;
+  pid_throttle.Init(0.07, 0, 0);
+
+  h.onMessage([&pid_steer, &pid_speed, &pid_throttle](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -56,7 +68,7 @@ int main() {
           // j[1] is the data JSON object
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
-          // double angle = std::stod(j[1]["steering_angle"].get<string>());
+          double angle = std::stod(j[1]["steering_angle"].get<string>());
           double steer_value;
           /**
            * TODO: Calculate steering value here, remember the steering value is
@@ -65,7 +77,25 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
 
+
+          cout << "\n----------------------- Input " << endl;
+          cout << "cte = " << cte << endl;
+          cout << "speed = " << speed << endl;
+          cout << "steering_angle = " << angle << endl;
+
+
           
+
+          // Speed depends on throttle. The Throttle PID must have speed as error. 
+
+          // CTE depends on steering. The steering PID must have CTE as error. 
+
+          // Apply Ziegler-Nichols method, or Stackexchange method. 
+
+          // First try to understand the steering: 
+          // First give high throttle till reach speed 20. Then reduce throttle to 0.1. And observe the steering. 
+
+          // The target velue for speed should depend also on errror
 
           pid_steer.UpdateError(cte);
           steer_value = pid_steer.TotalError();
@@ -77,21 +107,36 @@ int main() {
             steer_value = -1.0;
           }
 
-          pid_speed.UpdateError(cte);
-          double throttle = 0.2; 
+          double target_speed = speed;
+          double throttle = 0.8;
           if (speed > 20) {
-            throttle += throttle * pid_speed.TotalError();
-          }
+            throttle = 0;
+          } 
+
+          // pid_speed.UpdateError(cte);
+          // double throttle = 0.2; 
+          // if (speed > 20) {
+          //   throttle += throttle * pid_speed.TotalError();
+          // }
+
+          // pid_throttle.UpdateError(cte);
+          // double throttle = 0.2; 
+          // if (speed > 20) {
+          //   throttle += throttle * pid_throttle.TotalError();
+          // }
           
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " Speed: " << speed
-                    << std::endl;
+          cout << "----------------------- Output" << endl;
+          cout << "total_error_steer = " << pid_steer.TotalError() << endl;
+          cout << "steer_value = " << steer_value << endl;
+          cout << "target_speed = " << target_speed << endl;
+          cout << "throttle = " << throttle << endl;
+
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {

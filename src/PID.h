@@ -46,8 +46,8 @@ class PID {
   double Ki;
   double Kd;
 
-  double prev_cte = 0.0;
-  double sum_cte = 0.0;
+  double prev_error = 0.0;
+  double sum_error = 0.0;
   
 };
 
