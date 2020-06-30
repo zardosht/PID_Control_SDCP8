@@ -45,12 +45,10 @@ int main() {
   // pid_steer.Init(0.15, 0.001, 1.5);
   pid_steer.Init(0.2, 0.001, 1.5);
 
-
   PID pid_speed;
   // pid_speed.Init(1.0, 0, 0);
-  //pid_speed.Init(10.0, 0, 0);
+  // pid_speed.Init(10.0, 0, 0);
   pid_speed.Init(5.0, 0, 3.0);
-
 
   PID pid_throttle;
   pid_throttle.Init(0.07, 0, 0);
@@ -74,32 +72,11 @@ int main() {
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
           double steer_value;
-          /**
-           * TODO: Calculate steering value here, remember the steering value is
-           *   [-1, 1].
-           * NOTE: Feel free to play around with the throttle and speed.
-           *   Maybe use another PID controller to control the speed!
-           */
-
-
+      
           cout << "\n----------------------- Input " << endl;
           cout << "cte = " << cte << endl;
           cout << "speed = " << speed << endl;
           cout << "steering_angle = " << angle << endl;
-
-
-          
-
-          // Speed depends on throttle. The Throttle PID must have speed as error. 
-
-          // CTE depends on steering. The steering PID must have CTE as error. 
-
-          // Apply Ziegler-Nichols method, or Stackexchange method. 
-
-          // First try to understand the steering: 
-          // First give high throttle till reach speed 20. Then reduce throttle to 0.1. And observe the steering. 
-
-          // The target velue for speed should depend also on errror
 
           pid_steer.UpdateError(cte);
           steer_value = pid_steer.TotalError();
@@ -121,17 +98,6 @@ int main() {
           double throttle = target_throttle;
           throttle = throttle - pid_throttle.TotalError();
 
-          // double throttle = 0.8;
-          // if (speed > 20) {
-          //   throttle = 0;
-          // } 
-
-          // pid_throttle.UpdateError(cte);
-          // double throttle = 0.2; 
-          // if (speed > 20) {
-          //   throttle += throttle * pid_throttle.TotalError();
-          // }
-          
           // DEBUG
           cout << "----------------------- Output" << endl;
           cout << "total_error_steer = " << pid_steer.TotalError() << endl;
